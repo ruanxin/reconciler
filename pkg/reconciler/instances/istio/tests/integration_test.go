@@ -43,7 +43,7 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: istio-healthz
+  name: istio-test-healthz
 spec:
   gateways:
   - istio-system/test-gateway

@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/kyma-incubator/reconciler/internal/cli"
 	"github.com/kyma-incubator/reconciler/pkg/cluster"
 	"github.com/kyma-incubator/reconciler/pkg/logger"
@@ -16,10 +19,8 @@ import (
 	"github.com/kyma-incubator/reconciler/pkg/scheduler/reconciliation"
 	scheduler "github.com/kyma-incubator/reconciler/pkg/scheduler/service"
 	schedulerSvc "github.com/kyma-incubator/reconciler/pkg/scheduler/service"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 
-	//Register all reconcilers
+	// Register all reconcilers
 	_ "github.com/kyma-incubator/reconciler/pkg/reconciler/instances"
 )
 
@@ -61,14 +62,19 @@ func NewCmd(o *Options) *cobra.Command {
 			return RunLocal(o)
 		},
 	}
-	cmd.Flags().StringVar(&o.clusterState, "cluster", "", `Set the Cluster State JSON. Use other flags to override fields in the JSON.`)
+	cmd.Flags().StringVar(&o.clusterState, "cluster", "",
+		`Set the Cluster State JSON. Use other flags to override fields in the JSON.`)
 	cmd.Flags().StringVar(&o.kubeconfigFile, "kubeconfig", "", "Path to kubeconfig file")
-	cmd.Flags().StringSliceVar(&o.components, "components", []string{}, "Comma separated list of components with optional namespace, e.g. serverless,certificates@istio-system,monitoring")
-	cmd.Flags().StringVar(&o.componentsFile, "components-file", "", `Path to the components file (default "<workspace>/installation/resources/components.yaml")`)
-	cmd.Flags().StringSliceVar(&o.values, "value", []string{}, "Set configuration values. Can specify one or more values, also as a comma-separated list (e.g. --value component.a='1' --value component.b='2' or --value component.a='1',component.b='2').")
+	cmd.Flags().StringSliceVar(&o.components, "components", []string{},
+		"Comma separated list of components with optional namespace, e.g. serverless, monitoring")
+	cmd.Flags().StringVar(&o.componentsFile, "components-file", "",
+		`Path to the components file (default "<workspace>/installation/resources/components.yaml")`)
+	cmd.Flags().StringSliceVar(&o.values, "value", []string{},
+		"Set configuration values. Can specify one or more values, also as a comma-separated list (e.g. --value component.a='1' --value component.b='2' or --value component.a='1',component.b='2').")
 	cmd.Flags().StringVar(&o.version, "version", "", "Kyma version")
 	cmd.Flags().StringVar(&o.profile, "profile", "", "Kyma profile")
-	cmd.Flags().BoolVarP(&o.delete, "delete", "d", false, "Provide this flag to do a deletion instead of reconciliation")
+	cmd.Flags().BoolVarP(&o.delete, "delete", "d", false,
+		"Provide this flag to do a deletion instead of reconciliation")
 	return cmd
 }
 
@@ -82,9 +88,9 @@ func RunLocal(o *Options) error {
 		return err
 	}
 
-	//use a global workspace factory to ensure all component-reconcilers are using the same workspace-directory
-	//(otherwise each component-reconciler would handle the download of Kyma resources individually which will cause
-	//collisions when sharing the same directory)
+	// use a global workspace factory to ensure all component-reconcilers are using the same workspace-directory
+	// (otherwise each component-reconciler would handle the download of Kyma resources individually which will cause
+	// collisions when sharing the same directory)
 	wsFact, err := chart.NewFactory(nil, workspaceDir, l)
 	if err != nil {
 		return err
@@ -126,10 +132,10 @@ func RunLocal(o *Options) error {
 			}).
 		Run(cli.NewContext(), cluster)
 	if err != nil {
-		return err //general issue occurred
+		return err // general issue occurred
 	}
 
-	if reconResult.GetResult() == model.ClusterStatusReconcileError { //verify reconciliation result
+	if reconResult.GetResult() == model.ClusterStatusReconcileError { // verify reconciliation result
 		var failedOpsCnt int
 		var failedOps bytes.Buffer
 		for _, op := range reconResult.GetOperations() {

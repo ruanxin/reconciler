@@ -34,7 +34,7 @@ mothership:
       base:
         url: "http://localhost:8081/v1/run"
     preComponents:
-      - [cluster-essentials, istio-configuration, istio, certificates]
+      - [ cluster-essentials, istio-configuration, istio ]
     componentCRDs: {}
     # Example:
     #  keda:
